@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <iterator>
-#include <vector>
 
 namespace LAZ {
     template<typename T>
