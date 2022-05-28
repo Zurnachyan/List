@@ -77,11 +77,11 @@ namespace LAZ {
         Iterator insert(Iterator pos, int n, const T& value);
         Iterator insert(Iterator pos, std::initializer_list<T> list);
         template<typename... Args>
-        Iterator emplace(Iterator pos, Args... args);
+        Iterator emplace(Iterator pos, Args&&... args);
         template<typename... Args>
-        void emplaceBack(Args... args);
+        void emplaceBack(Args&&... args);
         template<typename... Args>
-        void emplaceFront(Args... args);
+        void emplaceFront(Args&&... args);
         List<T>::Iterator erase(Iterator pos);
         void remove(const T& value);
         template<typename Operation>
@@ -515,19 +515,19 @@ namespace LAZ {
 
     template<typename T>
     template<typename... Args>
-    void List<T>::emplaceBack(Args... args) {
+    void List<T>::emplaceBack(Args&&... args) {
         pushBack(T(args...));
     }
 
     template<typename T>
     template<typename... Args>
-    void List<T>::emplaceFront(Args... args) {
+    void List<T>::emplaceFront(Args&&... args) {
         pushFront(T(args...));
     }
 
     template<typename T>
     template<typename... Args>
-    typename List<T>::Iterator List<T>::emplace(Iterator pos, Args... args) {
+    typename List<T>::Iterator List<T>::emplace(Iterator pos, Args&&... args) {
         return insert(pos, T(args...));
     }
 
