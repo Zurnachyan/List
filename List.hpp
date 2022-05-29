@@ -39,43 +39,50 @@ namespace LAZ {
             Node* _iter;
         };
     public:
+        typedef int sizeType;
+        typedef T valueType;
+        typedef T& reference;
+        typedef const T& constReference;
+    public:
         ~List() { clear(); }
         List() : _head{nullptr} {}
-        List(int n);
-        List(int n, T value);
-        List(std::initializer_list<T> list);
-        List(const List<T>& oth);
-        List(List<T>&& oth);
+        List(sizeType n);
+        List(sizeType n, valueType value);
+        List(std::initializer_list<valueType> list);
+        List(const List<valueType>& oth);
+        List(List<valueType>&& oth);
         template<typename U>
         List(const List<U>& oth);
     public:
-        List<T>& operator=(const List<T>& rhs);
-        List<T>& operator=(List<T>&& rhs);
+        List<valueType>& operator=(const List<valueType>& rhs);
+        List<valueType>& operator=(List<valueType>&& rhs);
         template<typename U>
-        List<T>& operator=(const List<U>& rhs);
-        bool operator==(const List<T>& rhs);
-        bool operator!=(const List<T>& rhs);
-        bool operator<(const List<T>& rhs);
-        bool operator<=(const List<T>& rhs);
-        bool operator>(const List<T>& rhs);
-        bool operator>=(const List<T>& rhs);
+        List<valueType>& operator=(const List<U>& rhs);
+        bool operator==(const List<valueType>& rhs);
+        bool operator!=(const List<valueType>& rhs);
+        bool operator<(const List<valueType>& rhs);
+        bool operator<=(const List<valueType>& rhs);
+        bool operator>(const List<valueType>& rhs);
+        bool operator>=(const List<valueType>& rhs);
     public:
         bool empty() const { return (_head == nullptr); }
-        int size() const;
-        void swap(List<T>& ob2);
-        void assign(int n, const T& value);
-        void assign(std::initializer_list<T> list);
+        reference front() const { return _head->_value; }
+        reference back() const { return _end.getIter()->_prev->_value; }
+        sizeType size() const;
+        void swap(List<valueType>& ob2);
+        void assign(sizeType n, constReference value);
+        void assign(std::initializer_list<valueType> list);
         template<typename Iter>
         void assign(Iter begin, Iter end);
-        void pushBack(const T& value);
-        void pushFront(const T& value);
+        void pushBack(constReference value);
+        void pushFront(constReference value);
         void popBack();
         void popFront();
-        Iterator insert(Iterator pos, const T& value);
+        Iterator insert(Iterator pos, constReference value);
         template<typename Iter>
         Iterator insert(Iterator pos, Iter begin, Iter end);
-        Iterator insert(Iterator pos, int n, const T& value);
-        Iterator insert(Iterator pos, std::initializer_list<T> list);
+        Iterator insert(Iterator pos, sizeType n, constReference value);
+        Iterator insert(Iterator pos, std::initializer_list<valueType> list);
         template<typename... Args>
         Iterator emplace(Iterator pos, Args&&... args);
         template<typename... Args>
@@ -83,15 +90,15 @@ namespace LAZ {
         template<typename... Args>
         void emplaceFront(Args&&... args);
         List<T>::Iterator erase(Iterator pos);
-        void remove(const T& value);
+        void remove(constReference value);
         template<typename Operation>
         void removeIf(Operation op);
         void clear();
         void unique();
         template<typename Operation>
         void unique(Operation op);
-        void resize(int n);
-        void resize(int n, const T& value);
+        void resize(sizeType n);
+        void resize(sizeType n, constReference value);
     public:
         Iterator begin() const { return _begin; }
         Iterator end() const { return _end; }
@@ -103,7 +110,7 @@ namespace LAZ {
 
     // CONSTRUCTORS
     template<typename T>
-    List<T>::List(int n) {
+    List<T>::List(sizeType n) {
         _head = new Node();
         Node* tmp = _head;
         for(int i = 0; i < n - 1; ++i) {
@@ -118,10 +125,10 @@ namespace LAZ {
     }
 
     template<typename T>
-    List<T>::List(int n, T value) {
+    List<T>::List(sizeType n, valueType value) {
         _head = new Node(value);
         Node* tmp = _head;
-        for(int i = 0; i < n - 1; ++i) {
+        for(sizeType i = 0; i < n - 1; ++i) {
             tmp->_next = new Node(value);
             tmp->_next->_prev = tmp;
             tmp = tmp->_next;
@@ -133,12 +140,12 @@ namespace LAZ {
     }
 
     template<typename T>
-    List<T>::List(std::initializer_list<T> list) {
+    List<T>::List(std::initializer_list<valueType> list) {
         auto j = list.begin();
         _head = new Node(*j);
         ++j;
         Node* tmp = _head;
-        for(int i = 1; i < list.size(); ++i, ++j) {
+        for(sizeType i = 1; i < list.size(); ++i, ++j) {
             tmp->_next = new Node(*j);
             tmp->_next->_prev = tmp;
             tmp = tmp->_next;
@@ -150,7 +157,7 @@ namespace LAZ {
     }
 
     template<typename T>
-    List<T>::List(const List<T>& oth) {
+    List<T>::List(const List<valueType>& oth) {
         Node* tmp = oth._head;
         _head = new Node(tmp->_value);
         Node* tmp1 = _head;
@@ -165,7 +172,7 @@ namespace LAZ {
     }
 
     template<typename T>
-    List<T>::List(List<T>&& oth) {
+    List<T>::List(List<valueType>&& oth) {
         _head = oth._head;
         _begin = oth._begin;
         _end = oth._end;
@@ -193,7 +200,7 @@ namespace LAZ {
 
     // OPERATORS
     template<typename T>
-    List<T>& List<T>::operator=(const List<T>& rhs) {
+    List<T>& List<T>::operator=(const List<valueType>& rhs) {
         if(this == &rhs) {
             return *this;
         }
@@ -213,7 +220,7 @@ namespace LAZ {
     }
 
     template<typename T>
-    List<T>& List<T>::operator=(List<T>&& rhs) {
+    List<T>& List<T>::operator=(List<valueType>&& rhs) {
         _head = rhs._head;
         _begin = rhs._begin;
         _end = rhs._end;
@@ -243,7 +250,7 @@ namespace LAZ {
     }
 
     template<typename T>
-    bool List<T>::operator==(const List<T>& rhs) {
+    bool List<T>::operator==(const List<valueType>& rhs) {
         auto it = _begin;
         auto iter = rhs.begin();
         while(it != _end) {
@@ -257,37 +264,37 @@ namespace LAZ {
     }
 
     template<typename T>
-    bool List<T>::operator!=(const List<T>& rhs) {
+    bool List<T>::operator!=(const List<valueType>& rhs) {
         return !(*this == rhs);
     }
 
     template<typename T>
-    bool List<T>::operator<(const List<T>& rhs) {
+    bool List<T>::operator<(const List<valueType>& rhs) {
         return std::lexicographical_compare(_begin, _end, rhs._begin, rhs._end);
     }
 
     template<typename T>
-    bool List<T>::operator<=(const List<T>& rhs) {
+    bool List<T>::operator<=(const List<valueType>& rhs) {
         return !(rhs < *this);
     }
 
     template<typename T>
-    bool List<T>::operator>(const List<T>& rhs) {
+    bool List<T>::operator>(const List<valueType>& rhs) {
         return (rhs < *this);
     }
 
     template<typename T>
-    bool List<T>::operator>=(const List<T>& rhs) {
+    bool List<T>::operator>=(const List<valueType>& rhs) {
         return !(*this < rhs);
     }
 
     // FUNCTIONS
     template<typename T>
-    int List<T>::size() const {
+    typename List<T>::sizeType List<T>::size() const {
         if(empty()) {
             return 0;
         }
-        int size{};
+        sizeType size{};
         auto it = _begin;
         while(it++ != _end) {
             ++size;
@@ -296,7 +303,7 @@ namespace LAZ {
     }
 
     template<typename T>
-    void List<T>::swap(List<T>& ob2) {
+    void List<T>::swap(List<valueType>& ob2) {
         Node* tmp = _head;
         _head = ob2._head;
         ob2._head = tmp;
@@ -309,11 +316,11 @@ namespace LAZ {
     }
         
     template<typename T>
-    void List<T>::assign(int n, const T& value) {
+    void List<T>::assign(sizeType n, constReference value) {
         clear();
         _head = new Node(value);
         Node* tmp = _head;
-        for(int i = 0; i < n - 1; ++i) {
+        for(sizeType i = 0; i < n - 1; ++i) {
             tmp->_next = new Node(value);
             tmp->_next->_prev = tmp;
             tmp = tmp->_next;
@@ -325,13 +332,13 @@ namespace LAZ {
     }
 
     template<typename T>
-    void List<T>::assign(std::initializer_list<T> list) {
+    void List<T>::assign(std::initializer_list<valueType> list) {
         clear();
         auto j = list.begin();
         _head = new Node(*j);
         ++j;
         Node* tmp = _head;
-        for(int i = 1; j != list.end(); ++i, ++j) {
+        for(sizeType i = 1; j != list.end(); ++i, ++j) {
             tmp->_next = new Node(*j);
             tmp->_next->_prev = tmp;
             tmp = tmp->_next;
@@ -362,7 +369,7 @@ namespace LAZ {
     }
         
     template<typename T>    
-    void List<T>::pushBack(const T& value) {
+    void List<T>::pushBack(constReference value) {
         if(empty()) {
             _head = new Node(value);
             _head->_next = new Node();
@@ -378,7 +385,7 @@ namespace LAZ {
     }
 
     template<typename T>
-    void List<T>::pushFront(const T& value) {
+    void List<T>::pushFront(constReference value) {
         if(empty()) {
             _head = new Node(value);
             _head->_next = new Node();
@@ -417,7 +424,7 @@ namespace LAZ {
     }
 
     template<typename T>
-    typename List<T>::Iterator List<T>::insert(Iterator pos, const T& value) {
+    typename List<T>::Iterator List<T>::insert(Iterator pos, constReference value) {
         Node* tmp;
         if(pos.getIter()->_prev != nullptr) {
             tmp = pos.getIter()->_prev;
@@ -463,10 +470,10 @@ namespace LAZ {
     }
 
     template<typename T>
-    typename List<T>::Iterator List<T>::insert(Iterator pos, int n, const T& value) {
+    typename List<T>::Iterator List<T>::insert(Iterator pos, sizeType n, constReference value) {
         Node* tmp = new Node(value);
         Node* tmp1 = tmp;
-        for(int i = 1; i < n; ++i) {
+        for(sizeType i = 1; i < n; ++i) {
             tmp->_next = new Node(value);
             tmp->_next->_prev = tmp;
             tmp = tmp->_next;
@@ -487,7 +494,7 @@ namespace LAZ {
     }
 
     template<typename T>
-    typename List<T>::Iterator List<T>::insert(Iterator pos, std::initializer_list<T> list) {
+    typename List<T>::Iterator List<T>::insert(Iterator pos, std::initializer_list<valueType> list) {
         auto begin = list.begin();
         Node* tmp = new Node(*begin);
         Node* tmp1 = tmp;
@@ -510,25 +517,25 @@ namespace LAZ {
             _head = tmp1;
             _begin = _head;
         }
-        return Iterator(tmp1);
+        return Iterator(std::move(tmp1));
     }
 
     template<typename T>
     template<typename... Args>
     void List<T>::emplaceBack(Args&&... args) {
-        pushBack(T(args...));
+        pushBack(valueType(args...));
     }
 
     template<typename T>
     template<typename... Args>
     void List<T>::emplaceFront(Args&&... args) {
-        pushFront(T(args...));
+        pushFront(valueType(args...));
     }
 
     template<typename T>
     template<typename... Args>
     typename List<T>::Iterator List<T>::emplace(Iterator pos, Args&&... args) {
-        return insert(pos, T(args...));
+        return insert(pos, valueType(args...));
     }
 
     template<typename T>
@@ -548,7 +555,7 @@ namespace LAZ {
     }
 
     template<typename T>
-    void List<T>::remove(const T& value) {
+    void List<T>::remove(constReference value) {
         while(*_begin == value) {
             popFront();
         }
@@ -597,8 +604,8 @@ namespace LAZ {
 
     template<typename T>
     void List<T>::unique() {
-        List<T> ls;
-        int size1 = size();
+        List<valueType> ls;
+        sizeType size1 = size();
         auto first = _begin;
         while(first != _end) {
             auto after = first;
@@ -618,8 +625,8 @@ namespace LAZ {
     template<typename T>
     template<typename Operation>
     void List<T>::unique(Operation op) {
-        List<T> ls;
-        int size1 = size();
+        List<valueType> ls;
+        sizeType size1 = size();
         auto first = _begin;
         while(first != _end) {
             auto after = first;
@@ -637,8 +644,8 @@ namespace LAZ {
     }
 
     template<typename T>
-    void List<T>::resize(int n) {
-        int size1 = size();
+    void List<T>::resize(sizeType n) {
+        sizeType size1 = size();
         while(size1 > n) {
             popBack();
             ++n;
@@ -653,8 +660,8 @@ namespace LAZ {
     }
 
     template<typename T>
-    void List<T>::resize(int n, const T& value) {
-        int size1 = size();
+    void List<T>::resize(sizeType n, constReference value) {
+        sizeType size1 = size();
         while(size1 > n) {
             popBack();
             ++n;
